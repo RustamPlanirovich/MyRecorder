@@ -20,11 +20,10 @@ import java.io.IOException
 import java.lang.Exception
 import java.text.SimpleDateFormat
 
-class RecordService : Service() {
+class RecordService: Service() {
 
     private var mFileName: String? = null
     private var mFilePath: String? = null
-    private var mCountRecords: Int? = null
 
     private var mRecorder: MediaRecorder? = null
 
@@ -36,8 +35,6 @@ class RecordService : Service() {
     private val mJob = Job()
     private val mUiScope = CoroutineScope(Dispatchers.Main + mJob)
 
-    private val CHANNEL_ID = "RecordService"
-
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
@@ -48,10 +45,9 @@ class RecordService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        mCountRecords = intent?.extras!!["COUNT"] as Int?
 
         startRecording()
-        return START_STICKY
+        return START_NOT_STICKY
     }
 
     private fun startRecording() {
@@ -76,12 +72,12 @@ class RecordService : Service() {
     }
 
     private fun createNotification(): Notification? {
-        val mBuilder: NotificationCompat.Builder =
-            NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_baseline_mic_24)
-                .setContentTitle(getString(R.string.app_name))
-                .setContentText(getString(R.string.notification_recording))
-                .setOngoing(true)
+        val mBuilder: NotificationCompat.Builder
+                = NotificationCompat.Builder(applicationContext, getString(R.string.notification_channel_id))
+            .setSmallIcon(R.drawable.ic_baseline_mic_24)
+            .setContentTitle(getString(R.string.app_name))
+            .setContentText(getString(R.string.notification_recording))
+            .setOngoing(true)
         mBuilder.setContentIntent(
             PendingIntent.getActivities(
                 applicationContext, 0, arrayOf(
@@ -98,11 +94,11 @@ class RecordService : Service() {
     private fun setFileNameAndPath() {
         var count = 0
         var f: File
-        val dateTime = SimpleDateFormat("yyyy_MM-dd_HH_mm_ss").format(System.currentTimeMillis())
+        val dateTime = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(System.currentTimeMillis())
 
         do {
             mFileName = (getString(R.string.default_file_name)
-                    + "_ " + dateTime + count + ".mp4")
+                    + "_" + dateTime + count + ".mp4")
             mFilePath = application.getExternalFilesDir(null)?.absolutePath
             mFilePath += "/$mFileName"
 
@@ -118,12 +114,16 @@ class RecordService : Service() {
         mRecorder?.stop()
         mElapsedMillis = System.currentTimeMillis() - mStartingTimeMillis
         mRecorder?.release()
-        Toast.makeText(this, getString(R.string.toast_recording_finish), Toast.LENGTH_SHORT).show()
+        Toast.makeText(this,
+            getString(R.string.toast_recording_finish),
+            Toast.LENGTH_SHORT
+        ).show()
 
         recordingItem.name = mFileName.toString()
         recordingItem.filePath = mFilePath.toString()
         recordingItem.length = mElapsedMillis
         recordingItem.time = System.currentTimeMillis()
+
 
         mRecorder = null
 
@@ -134,17 +134,17 @@ class RecordService : Service() {
                 }
             }
         } catch (e: Exception) {
-            Log.e("RecorderService", "exception", e)
+            Log.e("RecordService", "exception", e)
         }
     }
-
 
     override fun onDestroy() {
         if (mRecorder != null) {
             stopRecording()
         }
 
-
         super.onDestroy()
     }
+
 }
+

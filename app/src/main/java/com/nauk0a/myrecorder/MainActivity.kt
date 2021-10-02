@@ -25,13 +25,14 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    fun isServiceRunning() : Boolean {
-        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    fun isServiceRunning(): Boolean {
+        val  manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (service in manager.getRunningServices(Int.MAX_VALUE)) {
-            if ("com.nauk0a.myrecorder.record.RecordService" == service.service.className){
+            if ("com.nauk0a.myrecorder.record.RecordService" == service.service.className) {
                 return true
             }
         }
         return false
+
     }
 }
