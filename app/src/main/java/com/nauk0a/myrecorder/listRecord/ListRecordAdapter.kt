@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.nauk0a.myrecorder.R
 import com.nauk0a.myrecorder.database.RecordingItem
 import com.nauk0a.myrecorder.player.PlayerFragment
+import com.nauk0a.myrecorder.removeDialog.RemoveFragmentDialog
 import java.io.File
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
@@ -70,6 +71,11 @@ class ListRecordAdapter : RecyclerView.Adapter<ListRecordAdapter.viewHolder>() {
                 Toast.makeText(context, "Аудиофайл не найден", Toast.LENGTH_SHORT).show()
             }
         }
+
+        holder.cardView.setOnLongClickListener {
+            removeItemDialog(recordingItem, context)
+            false
+        }
     }
 
     override fun getItemCount() = data.size
@@ -80,5 +86,19 @@ class ListRecordAdapter : RecyclerView.Adapter<ListRecordAdapter.viewHolder>() {
             .supportFragmentManager
             .beginTransaction()
         playerFragment.show(transaction, "dialog_playback")
+    }
+
+    private fun removeItemDialog(
+        recordingItem: RecordingItem,
+        context: Context?
+    ){
+        val removeDialogFragment: RemoveFragmentDialog = RemoveFragmentDialog().newInstance(
+            recordingItem.id, recordingItem.filePath
+        )
+        val transaction: FragmentTransaction =
+            (context as FragmentActivity)
+                .supportFragmentManager
+                .beginTransaction()
+        removeDialogFragment.show(transaction, "dialog_remove")
     }
 }
