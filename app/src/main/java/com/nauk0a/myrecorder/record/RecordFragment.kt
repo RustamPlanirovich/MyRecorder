@@ -37,7 +37,7 @@ class RecordFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = DataBindingUtil.inflate<FragmentRecordBinding>(
+        binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_record,
             container, false
